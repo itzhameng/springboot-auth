@@ -1,7 +1,11 @@
 package com.as.auth.service;
 
 import com.as.auth.model.system.SysRole;
+import com.as.auth.model.vo.SysRoleQueryVo;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 public interface SysRoleService extends IService<SysRole> {
+    IPage<SysRole> selectPage(Page<SysRole> pageParam, SysRoleQueryVo roleQueryVo);
 }
