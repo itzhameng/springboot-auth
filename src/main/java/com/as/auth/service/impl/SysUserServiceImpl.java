@@ -4,6 +4,7 @@ import com.as.auth.mapper.SysUserMapper;
 import com.as.auth.model.system.SysUser;
 import com.as.auth.model.vo.SysUserQueryVo;
 import com.as.auth.service.SysUserService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -29,5 +30,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         SysUser sysUser = sysUserMapper.selectById(id);
         sysUser.setStatus(status);
         sysUserMapper.updateById(sysUser);
+    }
+
+    @Override
+    public SysUser getByUsername(String username) {
+        return sysUserMapper.selectOne(new QueryWrapper<SysUser>().eq("username",username));
     }
 }

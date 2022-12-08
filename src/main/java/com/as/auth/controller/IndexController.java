@@ -1,11 +1,17 @@
 package com.as.auth.controller;
 
 import com.as.auth.common.Result;
+import com.as.auth.common.ResultCodeEnum;
+import com.as.auth.config.MyException;
+import com.as.auth.helper.JwtHelper;
+import com.as.auth.helper.MD5;
+import com.as.auth.model.system.SysUser;
+import com.as.auth.model.vo.LoginVo;
+import com.as.auth.service.SysUserService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,34 +27,54 @@ import java.util.Map;
 public class IndexController {
 
 
+    @Autowired
+    private SysUserService sysUserService;
+
+
     /**
      * 登录
+     *
      * @return
      */
     @PostMapping("/login")
-    public Result login() {
+    public Result login(@RequestBody LoginVo loginVo) {
+        SysUser sysUser = sysUserService.getByUsername(loginVo.getUsername());
+        if (null == sysUser) {
+            throw new MyException(ResultCodeEnum.ACCOUNT_ERROR);
+        }
+        if (!MD5.encrypt(loginVo.getPassword()).equals(sysUser.getPassword())) {
+            throw new MyException(ResultCodeEnum.PASSWORD_ERROR);
+        }
+        if (sysUser.getStatus().intValue() == 0) {
+            throw new MyException(ResultCodeEnum.ACCOUNT_STOP);
+        }
+
         Map<String, Object> map = new HashMap<>();
-        map.put("token","admin");
+        map.put("token", JwtHelper.createToken(sysUser.getId(), sysUser.getUsername()));
         return Result.ok(map);
     }
+
     /**
      * 获取用户信息
+     *
      * @return
      */
     @GetMapping("/info")
     public Result info() {
         Map<String, Object> map = new HashMap<>();
-        map.put("roles","[admin]");
-        map.put("name","admin");
-        map.put("avatar","https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif");
+        map.put("roles", "[admin]");
+        map.put("name", "admin");
+        map.put("avatar", "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif");
         return Result.ok(map);
     }
+
     /**
      * 退出
+     *
      * @return
      */
     @PostMapping("/logout")
-    public Result logout(){
+    public Result logout() {
         return Result.ok();
     }
 

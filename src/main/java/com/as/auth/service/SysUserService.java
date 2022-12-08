@@ -10,4 +10,6 @@ public interface SysUserService extends IService<SysUser> {
     IPage<SysUser> selectPage(Page<SysUser> pageParam, SysUserQueryVo adminQueryVo);
 
     void updateStatus(Long id, Integer status);
+
+    SysUser getByUsername(String username);
 }
