@@ -1,6 +1,7 @@
 package com.as.auth.controller;
 
 import com.as.auth.common.Result;
+import com.as.auth.helper.MD5;
 import com.as.auth.model.system.SysUser;
 import com.as.auth.model.vo.SysUserQueryVo;
 import com.as.auth.service.SysUserService;
@@ -41,12 +42,16 @@ public class SysUserController {
     @GetMapping("/get/{id}")
     public Result get(@PathVariable Long id) {
         SysUser user = sysUserService.getById(id);
+
+
         return Result.ok(user);
     }
 
     @ApiOperation(value = "保存用户")
     @PostMapping("/save")
     public Result save(@RequestBody SysUser user) {
+        //密码加密处理
+        user.setPassword(MD5.encrypt(user.getPassword()));
         sysUserService.save(user);
         return Result.ok();
     }

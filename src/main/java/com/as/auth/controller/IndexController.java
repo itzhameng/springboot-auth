@@ -13,6 +13,8 @@ import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,7 +39,7 @@ public class IndexController {
      * @return
      */
     @PostMapping("/login")
-    public Result login(@RequestBody LoginVo loginVo) {
+    public Result login(@RequestBody LoginVo loginVo, HttpServletResponse response) {
         SysUser sysUser = sysUserService.getByUsername(loginVo.getUsername());
         if (null == sysUser) {
             throw new MyException(ResultCodeEnum.ACCOUNT_ERROR);
@@ -50,7 +52,11 @@ public class IndexController {
         }
 
         Map<String, Object> map = new HashMap<>();
-        map.put("token", JwtHelper.createToken(sysUser.getId(), sysUser.getUsername()));
+        String token = JwtHelper.createToken(sysUser.getId(), sysUser.getUsername());
+        map.put("token", token);
+
+        response.addHeader("token", token);
+
         return Result.ok(map);
     }
 
@@ -60,11 +66,13 @@ public class IndexController {
      * @return
      */
     @GetMapping("/info")
-    public Result info() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("roles", "[admin]");
-        map.put("name", "admin");
-        map.put("avatar", "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif");
+    public Result info(String token) {
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("roles", "[admin]");
+//        map.put("name", "admin");
+//        map.put("avatar", "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif");
+        String username = JwtHelper.getUsername(token);
+        Map<String, Object> map = sysUserService.getUserInfo(username);
         return Result.ok(map);
     }
 

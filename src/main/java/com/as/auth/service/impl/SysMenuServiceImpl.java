@@ -3,11 +3,13 @@ package com.as.auth.service.impl;
 import com.as.auth.common.ResultCodeEnum;
 import com.as.auth.config.MyException;
 import com.as.auth.helper.MenuHelper;
+import com.as.auth.helper.RouterHelper;
 import com.as.auth.mapper.SysMenuMapper;
 import com.as.auth.mapper.SysRoleMenuMapper;
 import com.as.auth.model.system.SysMenu;
 import com.as.auth.model.system.SysRoleMenu;
 import com.as.auth.model.vo.AssginMenuVo;
+import com.as.auth.model.vo.RouterVo;
 import com.as.auth.service.SysMenuService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -91,6 +93,42 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
                 sysRoleMenuMapper.insert(sysRoleMenu);
             }
         }
+    }
+
+    @Override
+    public List<RouterVo> findUserMenuList(String userId) {
+        //超级管理员admin账号id为：1
+        List<SysMenu> sysMenuList = null;
+        if (Long.parseLong(userId)== 1) {
+            sysMenuList = sysMenuMapper.selectList(new QueryWrapper<SysMenu>().eq("status", 1).orderByAsc("sort_value"));
+        } else {
+            sysMenuList = sysMenuMapper.findListByUserId(userId);
+        }
+        //构建树形数据
+        List<SysMenu> sysMenuTreeList = MenuHelper.buildTree(sysMenuList);
+
+        //构建路由
+        List<RouterVo> routerVoList = RouterHelper.buildRouters(sysMenuTreeList);
+        return routerVoList;
+    }
+
+    @Override
+    public List<String> findUserPermsList(String userId) {
+        //超级管理员admin账号id为：1
+        List<SysMenu> sysMenuList = null;
+        if (Long.parseLong(userId)== 1) {
+            sysMenuList = sysMenuMapper.selectList(new QueryWrapper<SysMenu>().eq("status", 1));
+        } else {
+            sysMenuList = sysMenuMapper.findListByUserId(userId);
+        }
+        //创建返回的集合
+        List<String> permissionList = new ArrayList<>();
+        for (SysMenu sysMenu : sysMenuList) {
+            if(sysMenu.getType() == 2){
+                permissionList.add(sysMenu.getPerms());
+            }
+        }
+        return permissionList;
     }
 
 }

@@ -2,6 +2,7 @@ package com.as.auth.service;
 
 import com.as.auth.model.system.SysMenu;
 import com.as.auth.model.vo.AssginMenuVo;
+import com.as.auth.model.vo.RouterVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -24,4 +25,18 @@ public interface SysMenuService extends IService<SysMenu> {
      * @param  assginMenuVo
      */
     void doAssign(AssginMenuVo assginMenuVo);
+
+    /**
+     * 获取用户菜单
+     * @param userId
+     * @return
+     */
+    List<RouterVo> findUserMenuList(String userId);
+
+    /**
+     * 获取用户按钮权限
+     * @param userId
+     * @return
+     */
+    List<String> findUserPermsList(String userId);
 }
